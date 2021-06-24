@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
 import 'dart:ui';
+import 'package:hcl_zgaf_tdmi_final/src/models/client_model.dart';
+import 'package:hcl_zgaf_tdmi_final/src/providers/client_provider.dart';
 
 class NewClientPage extends StatelessWidget {
+  final clientProvider = new ClientProvider();
+  ClientModel client = new ClientModel();
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -52,18 +56,20 @@ class NewClientPage extends StatelessWidget {
                                   children: <Widget>[
                                     Padding(
                                       padding: EdgeInsets.symmetric(
-                                          vertical: 30, horizontal: 10),
+                                          vertical: 20, horizontal: 10),
                                       child: Column(
                                         children: <Widget>[
                                           Padding(
                                               padding: EdgeInsets.only(top: 50),
                                               child: Column(children: <Widget>[
-                                                _input(label: "Nombre"),
-                                                _input(label: "Apellidos"),
-                                                _input(
+                                                _inputName(label: "Nombre"),
+                                                _inputLastName(
+                                                    label: "Apellidos"),
+                                                _inputAge(label: "Edad"),
+                                                _inputDescription(
                                                     label: "Descripción",
                                                     height: 7.0),
-                                                _button(),
+                                                _button(context),
                                               ])),
                                         ],
                                       ),
@@ -143,12 +149,15 @@ class NewClientPage extends StatelessWidget {
     );
   }
 
-  Widget _button() {
+  Widget _button(context) {
     return Padding(
       padding: EdgeInsets.only(left: 200, top: 40),
       child: MaterialButton(
         minWidth: double.infinity,
-        onPressed: () {},
+        onPressed: () {
+          clientProvider.crearCliente(client);
+          Navigator.pushNamed(context, 'clients');
+        },
         color: Colors.white.withOpacity(0.3),
         elevation: 0,
         child: Text(
@@ -166,7 +175,7 @@ class NewClientPage extends StatelessWidget {
     );
   }
 
-  Widget _input({label, height = 1.0}) {
+  Widget _inputName({label, height = 1.0}) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
@@ -177,6 +186,89 @@ class NewClientPage extends StatelessWidget {
           style: TextStyle(
             height: height,
           ),
+          onChanged: (value) => client.name = value,
+          decoration: InputDecoration(
+              filled: true,
+              fillColor: Colors.white.withOpacity(0.3),
+              hintText: label,
+              hintStyle: TextStyle(fontSize: 18.0, color: Colors.white),
+              contentPadding: EdgeInsets.symmetric(vertical: 0, horizontal: 10),
+              enabledBorder: OutlineInputBorder(
+                borderSide: BorderSide(color: Colors.white.withOpacity(0.3)),
+              ),
+              border: OutlineInputBorder()),
+        ),
+      ],
+    );
+  }
+
+  Widget _inputLastName({label, height = 1.0}) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: <Widget>[
+        SizedBox(
+          height: 15,
+        ),
+        TextField(
+          style: TextStyle(
+            height: height,
+          ),
+          onChanged: (value) => client.lastName = value,
+          decoration: InputDecoration(
+              filled: true,
+              fillColor: Colors.white.withOpacity(0.3),
+              hintText: label,
+              hintStyle: TextStyle(fontSize: 18.0, color: Colors.white),
+              contentPadding: EdgeInsets.symmetric(vertical: 0, horizontal: 10),
+              enabledBorder: OutlineInputBorder(
+                borderSide: BorderSide(color: Colors.white.withOpacity(0.3)),
+              ),
+              border: OutlineInputBorder()),
+        ),
+      ],
+    );
+  }
+
+  Widget _inputAge({label, height = 1.0}) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: <Widget>[
+        SizedBox(
+          height: 15,
+        ),
+        TextField(
+          style: TextStyle(
+            height: height,
+          ),
+          keyboardType: TextInputType.number,
+          onChanged: (value) => client.age = int.parse(value),
+          decoration: InputDecoration(
+              filled: true,
+              fillColor: Colors.white.withOpacity(0.3),
+              hintText: label,
+              hintStyle: TextStyle(fontSize: 18.0, color: Colors.white),
+              contentPadding: EdgeInsets.symmetric(vertical: 0, horizontal: 10),
+              enabledBorder: OutlineInputBorder(
+                borderSide: BorderSide(color: Colors.white.withOpacity(0.3)),
+              ),
+              border: OutlineInputBorder()),
+        ),
+      ],
+    );
+  }
+
+  Widget _inputDescription({label, height = 1.0}) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: <Widget>[
+        SizedBox(
+          height: 15,
+        ),
+        TextField(
+          style: TextStyle(
+            height: height,
+          ),
+          onChanged: (value) => client.description = value,
           decoration: InputDecoration(
               filled: true,
               fillColor: Colors.white.withOpacity(0.3),

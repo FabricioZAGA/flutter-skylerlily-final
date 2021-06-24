@@ -1,7 +1,19 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'dart:ui';
+import 'package:hcl_zgaf_tdmi_final/src/models/appointment_model.dart';
+import 'package:hcl_zgaf_tdmi_final/src/providers/appt_provider.dart';
 
-class NewAppointmentPage extends StatelessWidget {
+class NewAppointmentPage extends StatefulWidget {
+  @override
+  _NewAppointmentPageState createState() => _NewAppointmentPageState();
+}
+
+class _NewAppointmentPageState extends State<NewAppointmentPage> {
+  TextEditingController _inputFieldDateController = new TextEditingController();
+  String _fecha = '';
+  ApptModel appt = new ApptModel();
+  final apptProvider = new ApptProvider();
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -55,18 +67,21 @@ class NewAppointmentPage extends StatelessWidget {
                           children: <Widget>[
                             Padding(
                               padding: EdgeInsets.symmetric(
-                                  vertical: 30, horizontal: 10),
+                                  vertical: 60, horizontal: 10),
                               child: Column(
                                 children: <Widget>[
                                   Padding(
-                                      padding: EdgeInsets.only(top: 10),
-                                      child: Column(children: <Widget>[
-                                        _input(label: "Motivo"),
-                                        _clientInput(label: "Cliente"),
-                                        _dateInput(label: "Fecha Cita"),
-                                        _input(label: "Costo"),
+                                    padding: EdgeInsets.only(top: 10),
+                                    child: Column(
+                                      children: <Widget>[
+                                        _inputReason(label: "Motivo"),
+                                        _dateInput(context,
+                                            label: "Fecha Cita"),
+                                        _inputCost(label: "Costo"),
                                         _button(),
-                                      ])),
+                                      ],
+                                    ),
+                                  ),
                                 ],
                               ),
                             ),
@@ -89,7 +104,10 @@ class NewAppointmentPage extends StatelessWidget {
       padding: EdgeInsets.only(left: 200, top: 40),
       child: MaterialButton(
         minWidth: double.infinity,
-        onPressed: () {},
+        onPressed: () {
+          apptProvider.crearCita(appt);
+          Navigator.pushNamed(context, 'appts');
+        },
         color: Colors.white.withOpacity(0.3),
         elevation: 0,
         child: Text(
@@ -107,7 +125,7 @@ class NewAppointmentPage extends StatelessWidget {
     );
   }
 
-  Widget _input({label, lockIcon = false}) {
+  Widget _inputReason({label, lockIcon = false}) {
     var _icon;
     if (lockIcon) {
       _icon = Icon(
@@ -122,6 +140,43 @@ class NewAppointmentPage extends StatelessWidget {
           height: 5,
         ),
         TextField(
+          onChanged: (value) => appt.reason = value,
+          decoration: InputDecoration(
+              filled: true,
+              fillColor: Colors.white.withOpacity(0.3),
+              hintText: label,
+              hintStyle: TextStyle(fontSize: 18.0, color: Colors.white),
+              contentPadding: EdgeInsets.symmetric(vertical: 0, horizontal: 10),
+              enabledBorder: OutlineInputBorder(
+                borderSide: BorderSide(color: Colors.white.withOpacity(0.3)),
+              ),
+              suffixIcon: _icon,
+              border: OutlineInputBorder()),
+        ),
+        SizedBox(
+          height: 10,
+        )
+      ],
+    );
+  }
+
+  Widget _inputCost({label, lockIcon = false}) {
+    var _icon;
+    if (lockIcon) {
+      _icon = Icon(
+        Icons.lock,
+        color: Colors.white,
+      );
+    }
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: <Widget>[
+        SizedBox(
+          height: 5,
+        ),
+        TextField(
+          keyboardType: TextInputType.number,
+          onChanged: (value) => appt.cost = double.parse(value),
           decoration: InputDecoration(
               filled: true,
               fillColor: Colors.white.withOpacity(0.3),
@@ -172,7 +227,7 @@ class NewAppointmentPage extends StatelessWidget {
     );
   }
 
-  Widget _dateInput({label}) {
+  Widget _dateInput(BuildContext context, {label}) {
     var _icon = Icon(
       Icons.calendar_today,
       color: Colors.white,
@@ -183,7 +238,9 @@ class NewAppointmentPage extends StatelessWidget {
         SizedBox(
           height: 5,
         ),
-        TextField(
+        TextFormField(
+          controller: _inputFieldDateController,
+          enableInteractiveSelection: false,
           decoration: InputDecoration(
               filled: true,
               fillColor: Colors.white.withOpacity(0.3),
@@ -195,11 +252,31 @@ class NewAppointmentPage extends StatelessWidget {
               ),
               suffixIcon: _icon,
               border: OutlineInputBorder()),
+          onTap: () {
+            FocusScope.of(context).requestFocus(new FocusNode());
+            _selectFecha(context);
+          },
         ),
         SizedBox(
           height: 10,
         )
       ],
     );
+  }
+
+  void _selectFecha(BuildContext context) async {
+    DateTime picked = await showDatePicker(
+      context: context,
+      initialDate: new DateTime.now(),
+      firstDate: new DateTime(2017),
+      lastDate: new DateTime(2030),
+    );
+    if (picked != null) {
+      setState(() {
+        _fecha = DateFormat('dd/MM/yyyy').format(picked).toString();
+        _inputFieldDateController.text = _fecha;
+        appt.finished = DateFormat('yyyy-MM-dd').format(picked).toString();
+      });
+    }
   }
 }

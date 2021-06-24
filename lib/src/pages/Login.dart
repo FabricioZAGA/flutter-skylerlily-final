@@ -1,7 +1,18 @@
 import 'package:flutter/material.dart';
 import 'dart:ui';
+import 'package:hcl_zgaf_tdmi_final/src/providers/user_provider.dart';
+import 'package:hcl_zgaf_tdmi_final/src/models/user_model.dart';
 
-class LoginPage extends StatelessWidget {
+class LoginPage extends StatefulWidget {
+  const LoginPage();
+
+  @override
+  _LoginPageState createState() => _LoginPageState();
+}
+
+class _LoginPageState extends State<LoginPage> {
+  final userProvider = new UserProvider();
+  UserModel user = new UserModel();
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -107,8 +118,9 @@ class LoginPage extends StatelessWidget {
                               Padding(
                                   padding: EdgeInsets.only(top: 40),
                                   child: Column(children: <Widget>[
-                                    _input(label: "Email"),
-                                    _input(label: "Password", lockIcon: true),
+                                    _inputEmail(label: "Email"),
+                                    _inputPass(
+                                        label: "Password", lockIcon: true),
                                     _button(context),
                                     Padding(
                                       padding:
@@ -145,7 +157,11 @@ class LoginPage extends StatelessWidget {
       child: MaterialButton(
         minWidth: double.infinity,
         onPressed: () {
-          Navigator.pushNamed(context, 'clients');
+          userProvider.buscarUsuario(user).then((res) => {
+                res
+                    ? Navigator.pushNamed(context, 'clients')
+                    : Navigator.pushNamed(context, 'signup')
+              });
         },
         color: Colors.white.withOpacity(0.3),
         elevation: 0,
@@ -164,7 +180,7 @@ class LoginPage extends StatelessWidget {
     );
   }
 
-  Widget _input({label, lockIcon = false}) {
+  Widget _inputEmail({label, lockIcon = false}) {
     var _icon;
     if (lockIcon) {
       _icon = Icon(
@@ -179,6 +195,43 @@ class LoginPage extends StatelessWidget {
           height: 5,
         ),
         TextField(
+          onChanged: (value) => user.email = value,
+          decoration: InputDecoration(
+              filled: true,
+              fillColor: Colors.white.withOpacity(0.3),
+              hintText: label,
+              hintStyle: TextStyle(fontSize: 18.0, color: Colors.white),
+              contentPadding: EdgeInsets.symmetric(vertical: 0, horizontal: 10),
+              enabledBorder: OutlineInputBorder(
+                borderSide: BorderSide(color: Colors.white.withOpacity(0.3)),
+              ),
+              suffixIcon: _icon,
+              border: OutlineInputBorder()),
+        ),
+        SizedBox(
+          height: 10,
+        )
+      ],
+    );
+  }
+
+  Widget _inputPass({label, lockIcon = false}) {
+    var _icon;
+    if (lockIcon) {
+      _icon = Icon(
+        Icons.lock,
+        color: Colors.white,
+      );
+    }
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: <Widget>[
+        SizedBox(
+          height: 5,
+        ),
+        TextField(
+          obscureText: true,
+          onChanged: (value) => user.password = value,
           decoration: InputDecoration(
               filled: true,
               fillColor: Colors.white.withOpacity(0.3),

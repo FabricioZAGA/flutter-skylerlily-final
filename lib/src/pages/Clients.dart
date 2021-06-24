@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'dart:ui';
+import 'package:hcl_zgaf_tdmi_final/src/models/client_model.dart';
+import 'package:hcl_zgaf_tdmi_final/src/providers/client_provider.dart';
 
 class ClientsPage extends StatefulWidget {
   @override
@@ -10,6 +12,8 @@ class ClientsPage extends StatefulWidget {
 
 class _ClientsPage extends State<ClientsPage> {
   int _currentIndex = 1;
+  final clientProvider = new ClientProvider();
+  ClientModel client = new ClientModel();
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -22,22 +26,7 @@ class _ClientsPage extends State<ClientsPage> {
             colors: [Color(0xFFFA8BFF), Color(0xFF2BD2FF), Color(0xFF2BFF88)],
           ),
         ),
-        child: ListView(
-          children: <Widget>[
-            _cardT1(
-                title: 'Buenos Días Amor',
-                description:
-                    'Que tiene tu cara, que ha perdido el color amor amor amor y no dice nadaQue tiene tu cara, que ha perdido el color amor amor amor y no dice nada'),
-            _cardT1(
-                title: 'Buenos Días Amor',
-                description:
-                    'Que tiene tu cara, que ha perdido el color amor amor amor y no dice nadaQue tiene tu cara, que ha perdido el color amor amor amor y no dice nada'),
-            _cardT1(
-                title: 'Buenos Días Amor',
-                description:
-                    'Que tiene tu cara, que ha perdido el color amor amor amor y no dice nadaQue tiene tu cara, que ha perdido el color amor amor amor y no dice nada'),
-          ],
-        ),
+        child: _crearListado(),
       ),
       bottomNavigationBar: BottomNavigationBar(
           currentIndex: _currentIndex,
@@ -111,5 +100,50 @@ class _ClientsPage extends State<ClientsPage> {
                     Text(description, style: TextStyle(color: Colors.black)),
               )),
         ]));
+  }
+
+  Widget _crearListado() {
+    return FutureBuilder(
+      future: clientProvider.cargarProductos(),
+      builder:
+          (BuildContext context, AsyncSnapshot<List<ClientModel>> snapshot) {
+        if (snapshot.hasData) {
+          final productos = snapshot.data;
+
+          return ListView.builder(
+              itemCount: productos.length,
+              itemBuilder: (contex, i) => _crearItem(context, productos[i]));
+        } else {
+          return Center(child: CircularProgressIndicator());
+        }
+      },
+    );
+  }
+
+  Widget _crearItem(BuildContext context, ClientModel client) {
+    return Dismissible(
+        key: UniqueKey(),
+        background: Container(
+          color: Colors.red,
+        ),
+        child: Card(
+            elevation: 0,
+            color: Colors.white.withOpacity(0.3),
+            child: Column(children: <Widget>[
+              Container(
+                  height: 100,
+                  color: Colors.white.withOpacity(0.3),
+                  child: ListTile(
+                    leading: Icon(Icons.account_circle,
+                        color: Colors.white, size: 50),
+                    title: Text('${client.name} ${client.lastName}',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.w700,
+                        )),
+                    subtitle: Text(client.description,
+                        style: TextStyle(color: Colors.black)),
+                  )),
+            ])));
   }
 }
